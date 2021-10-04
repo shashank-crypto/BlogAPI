@@ -7,10 +7,10 @@ const config = require('../config/config');
 
 router.route('/:articleId')
     .get((req,res) => {
-        Article.findOne({_id : req.params.articleId})
+        Article.findById(req.params.articleId)
         .then(doc => {
             if(!doc) res.send('No such post in DB')
-            res.send(doc).sendStatus(200)
+            res.send(doc)
         })
         .catch(err => res.send({'error' : `you got some error - ${err}`}).sendStatus(400))
     })
@@ -29,6 +29,82 @@ router.route('/:articleId')
             res.send({"error" : "facing issue while posting article"})
         }
     })
+
+router.post('/:articleId/star',config.auth, async (req,res)=>{
+    if(req.auth){
+        /*User.findById(req.user)
+        .then(doc => {if(doc.Posts.liked.includes(req.params.articleId)); return;})
+        Article.findById(req.params.articleId)
+        .then(doc => {doc.starred++; doc.save()})
+        .then(doc => res.send({"message" : "You starred the post"}))
+        .catch(err => res.send({"error" :  `got an error - ${err}`}) )*/
+        try{
+            const loggedUser = await User.findById(req.user);
+            if(loggedUser.Posts.starred.includes(req.params.articleId)){
+                res.send({"message" : "You already starred it once"});
+                return
+            }
+            loggedUser.Posts.starred.push(req.params.articleId)
+            const article = await Article.findById(req.params.articleId);
+            article.starred++
+            await loggedUser.save()
+            await article.save()
+            res.send({"message" : "You starred the post"})
+        }catch(err){
+            res.send({"error" : `You got an error when trying to star the post ${err}`})
+        }
+    }
+    else{
+        res.send({"error" : "Not logged in"})
+    }
+})
+
+router.post('/:articleId/like',config.auth, async (req,res)=>{
+    if(req.auth){
+        /*Article.findById(req.params.articleId)
+        .then(doc => {doc.like++; doc.save()})
+        .then(doc => res.send({"message" : "You liked the post"}))
+        .catch(err => res.send({"error": `got an error - ${err}`}))*/
+        try{
+            const loggedUser = await User.findById(req.user);
+            if(loggedUser.Posts.liked.includes(req.params.articleId)){
+                res.send({"message" : "You already liked it once"});
+                return
+            }
+            loggedUser.Posts.liked.push(req.params.articleId)
+            const article = await Article.findById(req.params.articleId);
+            article.like++
+            await loggedUser.save()
+            await article.save()
+            res.send({"message" : "You Liked the post"})
+        }catch(err){
+            res.send({"error" : `You got an error when trying to star the post ${err}`})
+        }
+    }
+    else{
+        res.send({"error" : "Not logged in"})
+    }
+})
+
+router.post('/:articleId/comment' ,config.auth, async (req,res) => {
+    try{
+        if(req.auth){
+            const doc = await Article.findById(req.params.articleId);
+            const comment = {
+                authorId : req.user,
+                comment : req.body.comment
+            };
+            doc.comments.push(comment);
+            await doc.save();
+            res.send(comment)
+        }
+        else {
+            res.send({"error" : "Not logged in"})
+        }
+    }catch(err) {
+        res.send({"error" : `Can't comment because ${err}`})
+    }
+})
 
 router.post('/', config.auth, async (req,res)=>{
     if(req.auth) {

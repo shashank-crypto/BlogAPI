@@ -84,7 +84,7 @@ async function saveUser(user) {
 const articleAuth = async (req,res,next) => {
     try{
         if(req.auth) {
-            const doc = await Article.findOne({_id :req.params.articleId});
+            const doc = await Article.findById(req.params.articleId);
             console.log(`doc : ${doc}, auth : ${req.auth}, user : ${req.user}`)
             if(doc.authorId == req.user) {
                 req.article = doc;

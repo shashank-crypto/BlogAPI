@@ -17,14 +17,25 @@ const Article = new mongoose.Schema({
         },
         imgFiles : [String]
     },
-    like : Number,
-    starred : Number,
+    like : {
+        type : Number,
+        default : 0
+    },
+    starred : {
+        type : Number,
+        default : 0
+    },
+    comments : Number, //Don't need it though as we can always have comments.length
     date : {
         type : Date,
         required : true,
         default : Date.now()
     },
-    tags : [String]
+    tags : [String],
+    comments : [{
+        authorId : String,
+        comment : String
+    }]
 })
 
 module.exports = mongoose.model('Article', Article);

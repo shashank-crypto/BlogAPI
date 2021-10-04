@@ -113,6 +113,13 @@ article - get (anyone)<br>
 article - update (proper authorization) <br>
 article - post (authentication) <br>
 
+## Think Space
+
+I was thinking of adding another Schema for comment<br>
+But I have a change of mind I am thinking of adding a comment section right into the article Schema to avoid the overhead that it might have been created due to extra comment Schema. (Overhead in the sense of time)<br>
+
+I was trying to add another schema for security reasons but let's see first if integrating comment right into the article leaves any vulnerability.
+
 ## Another work
 
 Data Structure and Algorithm;<br>
