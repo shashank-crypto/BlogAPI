@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
+const compression = require('compression');
 const env = require('dotenv').config();
 const port = 3000;
 const User = require('./models/User');
@@ -9,6 +10,8 @@ const article = require('./routes/article')
 
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));
+
+// app.use(compression());
 
 //middlewares - cors(), morgan(), gzip-compression() for compresses requests, https()
 mongoose.connect(process.env.MONGO_URL, {

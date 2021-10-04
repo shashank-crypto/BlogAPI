@@ -9,10 +9,10 @@ router.route('/:articleId')
     .get((req,res) => {
         Article.findById(req.params.articleId)
         .then(doc => {
-            if(!doc) res.send('No such post in DB')
+            if(!doc) throw new Error("No such article present")
             res.send(doc)
         })
-        .catch(err => res.send({'error' : `you got some error - ${err}`}).sendStatus(400))
+        .catch(err => res.status(404).send({'error' : `you got some error - ${err}`}))
     })
     .put([config.auth, config.articleAuth], async (req, res) => {
         if (req.article) {
