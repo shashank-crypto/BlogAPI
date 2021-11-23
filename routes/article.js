@@ -3,7 +3,9 @@ let router = express.Router();
 const Article = require('../models/Article')
 const User = require('../models/User');
 const Tag = require('../models/Tag');
-const config = require('../config/config');
+// const config = require('../controller/config');
+const auth = require('../controller/auth')
+const articleAuth = require('../controller/articleAuth')
 
 router.route('/:articleId')
     .get((req,res) => {
@@ -14,7 +16,7 @@ router.route('/:articleId')
         })
         .catch(err => res.status(404).send({'error' : `you got some error - ${err}`}))
     })
-    .put([config.auth, config.articleAuth], async (req, res) => {
+    .put([auth, articleAuth], async (req, res) => {
         if (req.article) {
             const doc = req.article;
             doc.article.content = req.body.content;
@@ -30,7 +32,7 @@ router.route('/:articleId')
         }
     })
 
-router.post('/:articleId/star',config.auth, async (req,res)=>{
+router.post('/:articleId/star',auth, async (req,res)=>{
     if(req.auth){
         /*User.findById(req.user)
         .then(doc => {if(doc.Posts.liked.includes(req.params.articleId)); return;})
@@ -59,7 +61,7 @@ router.post('/:articleId/star',config.auth, async (req,res)=>{
     }
 })
 
-router.post('/:articleId/like',config.auth, async (req,res)=>{
+router.post('/:articleId/like',auth, async (req,res)=>{
     if(req.auth){
         /*Article.findById(req.params.articleId)
         .then(doc => {doc.like++; doc.save()})
@@ -86,7 +88,7 @@ router.post('/:articleId/like',config.auth, async (req,res)=>{
     }
 })
 
-router.post('/:articleId/comment' ,config.auth, async (req,res) => {
+router.post('/:articleId/comment' ,auth, async (req,res) => {
     try{
         if(req.auth){
             const doc = await Article.findById(req.params.articleId);
@@ -106,7 +108,7 @@ router.post('/:articleId/comment' ,config.auth, async (req,res) => {
     }
 })
 
-router.post('/', config.auth, async (req,res)=>{
+router.post('/', auth, async (req,res)=>{
     if(req.auth) {
         try{
             const doc = await User.findOne({_id : req.user});

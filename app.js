@@ -1,15 +1,19 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const app = express();
-const compression = require('compression');
-const env = require('dotenv').config();
-const port = 3000;
-const User = require('./models/User');
-const config = require('./config/config');
-const article = require('./routes/article')
+const express = require('express')
+const mongoose = require('mongoose')
+const app = express()
+const cors = require('cors')
+// const compression = require('compression');
+const env = require('dotenv').config()
+const port = 3000
 
+const article = require('./routes/article')
+const login = require('./routes/login')
+const signup = require('./routes/signup')
+
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));
+
 
 // app.use(compression());
 
@@ -25,6 +29,8 @@ mongoose.connect(process.env.MONGO_URL, {
 })
 
 app.use("/article", article)
+app.use("/signup", signup)
+app.use("/login", login)
 
 app.get('/', (req,res) => {
     // User.findOne({uname : "shashank.k"}).then(doc=>{if(doc) res.send(doc); else console.log('done')}).catch(err =>{console.log(err)})
@@ -36,48 +42,5 @@ app.post('/', (req,res)=>{
     // User.findOne({uname : "shasank.k"}).then(doc=>{if(doc) res.send(doc); else res.send('done');console.log('done')}).catch(err =>{console.log(err)})
 })
 
-app.post('/login', config.auth, async (req,res) => {
-    if(!req.auth && (!req.body.username && !req.body.password)) {
-        res.send({"error" : "empty boxes"});
-        return;
-    }
-
-    const user = (req.auth) ? {_id : req.user} : {uname : req.body.username};
-    // if(!req.body.username && !req.body.password) res.send({"error" : "empty boxes"})
-    try
-    {
-        const doc = await User.findOne(user);
-        if(req.auth && doc) {
-            res.send(doc);
-        }
-        else {
-            const result = await config.comparePasswords(req.body.password, doc.password);
-            if(result.message === "password verified") {res.send({"token" : config.generateToken({user : doc._id}),"doc" : doc})};
-        }
-    }
-    catch(err){
-        res.send({'error' : `login error : ${err}`})
-    }
-    
-})
-
-app.post('/signup',(req,res)=>{
-
-    var user = {
-        uname : req.body.username,
-        // uname : req.body.username,
-        name : {
-            fname : req.body.first,
-            lname : req.body.last
-        },
-        email : req.body.email,
-        password : req.body.password
-    };
-
-/// This thing is working now ///
-
-    config.saveUser(user).then(token => res.send(token))
-
-})
 
 app.listen(port, ()=>{console.log(`Server running at port ${port}`)});
